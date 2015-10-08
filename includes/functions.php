@@ -16,7 +16,7 @@ if( !defined( 'ABSPATH' ) ) exit;
  * @since 1.0.0
  */
 function edd_wordpress_downloads_text_args( $args ) {
-	$free_download_text = __( 'Free Download', 'edd-wordpress-downloads' );
+	$free_download_text = apply_filters( 'edd_wordpress_downloads_button_text', __( 'Free Download', 'edd-wordpress-downloads' ) );
 	$variable_pricing 	= edd_has_variable_prices( $args['download_id'] );
 
 	if ( $args['price'] && $args['price'] !== 'no' && ! $variable_pricing ) {
