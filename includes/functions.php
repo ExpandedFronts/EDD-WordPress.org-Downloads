@@ -177,7 +177,7 @@ function edd_wordpress_downloads_parse_url( $url ) {
  * @since 	1.0.0
  *
  * @param 	string $url The URL of the WordPress plugin to get data for.
- * @return 	array
+ * @return 	array|boolean
  */
 function edd_wordpress_downloads_get_data( $url ) {
 	$url 		= esc_url_raw( $url );
