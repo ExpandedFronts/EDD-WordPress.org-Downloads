@@ -2,26 +2,26 @@
 /**
  * widgets.php
  *
- * Custom widgets for Easy Digital Downloads.
+ * Widgets displayed by the plugin.
  *
- * @package     EDD\EDD_WordPress_Plugins\Functions
+ * @package     EDD\EDD_WordPress_Downloads\Widgets
  * @since       1.0.0
  */
 
 // Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class EDD_WordPress_Plugins_Widget extends WP_Widget {
+class EDD_WordPress_Downloads_Widget extends WP_Widget {
 
 	/**
 	 * Register the widget
 	 */
 	public function __construct() {
 		parent::__construct(
-			'edd_wordpress_plugins_widget',
-			'EDD WordPress Plugin Info',
+			'edd_wordpress_downloads_widget',
+			'EDD WordPress.org Downloads',
 			array(
-				'description' => 'Display details for WordPress plugins added through EDD.',
+				'description' => 'Display info for WordPress.org plugins or themes added through EDD.',
 			)
 		);
 	}
@@ -35,14 +35,19 @@ class EDD_WordPress_Plugins_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		global $post;
 
-		$wordpress_plugin = get_post_meta( $post->ID, '_edd_wordpress_plugin_url', true );
+		$wordpress_downloads_url = get_post_meta( $post->ID, '_edd_wordpress_downloads_url', true );
 
 		// Bail!
-		if ( ! $wordpress_plugin ) {
+		if ( ! $wordpress_downloads_url ) {
 			return;
 		}
 
-		$data = edd_get_wordpress_plugin_data( $wordpress_plugin );
+		$data = edd_wordpress_downloads_get_data( $wordpress_downloads_url );
+
+		// Bail!
+		if ( ! $data ) {
+			return;
+		}
 
 		// Get the options we should show.
 		$added 			= isset( $instance['added'] ) ? $instance['added'] : 1;
@@ -50,6 +55,18 @@ class EDD_WordPress_Plugins_Widget extends WP_Widget {
 		$downloaded 	= isset( $instance['downloaded'] ) ? $instance['downloaded'] : 1;
 		$rating 		= isset( $instance['rating'] ) ? $instance['rating'] : 1;
 		$version 		= isset( $instance['version'] ) ? $instance['version'] : 1;
+		$output_css		= isset( $instance['output_css'] ) ? $instance['output_css'] : 1;
+
+		if ( $output_css ) {
+			$list_styles = 'style="list-style-type: none;"';
+			$name_styles = 'style="display: block; font-weight: bold;"';
+			$info_styles = 'style="display: block; margin-bottom: 10px;"';
+		} else {
+			$list_styles = '';
+			$name_styles = '';
+			$info_styles = '';
+		}
+
 
 		// Start outputting the content.
 		echo $args['before_widget'];
@@ -58,49 +75,55 @@ class EDD_WordPress_Plugins_Widget extends WP_Widget {
 		}
 
 		?>
-		<ul class="edd-wordpress-plugin-details">
+		<ul class="edd-wordpress-download-details" <?php echo $list_styles; ?>>
 
-			<?php if ( $added ): ?>
+			<?php if ( $added && isset( $data['added'] ) ): ?>
 
 				<li>
-					<span class="edd-detail-name"><?php _e( 'Added: ', 'edd-wordpress-plugins' ); ?></span>
-					<span class="edd-detail-info"><?php echo $data['added']; ?></span>
+					<span class="edd-wordpress-downloads-detail-name" <?php echo $name_styles; ?>><?php _e( 'Date Added: ', 'edd-wordpress-downloads' ); ?></span>
+					<span class="edd-wordpress-downloasd-detail-info" <?php echo $info_styles; ?>><?php echo $data['added']; ?></span>
 				</li>
 
 			<?php endif; ?>
 
-			<?php if ( $updated ): ?>
+			<?php if ( $updated && isset( $data['last_updated'] ) ): ?>
 
 				<li>
-					<span class="edd-detail-name"><?php _e( 'Updated: ', 'edd-wordpress-plugins' ); ?></span>
-					<span class="edd-detail-info"><?php echo $data['last_updated']; ?></span>
+					<span class="edd-wordpress-downloads-detail-name" <?php echo $name_styles; ?>><?php _e( 'Last Updated: ', 'edd-wordpress-downloads' ); ?></span>
+					<span class="edd-wordpress-downloasd-detail-info" <?php echo $info_styles; ?>><?php echo $data['last_updated']; ?></span>
 				</li>
 
 			<?php endif; ?>
 
-			<?php if ( $downloaded ): ?>
+			<?php if ( $downloaded && isset( $data['downloaded'] ) ): ?>
 
 				<li>
-					<span class="edd-detail-name"><?php _e( 'Downloaded: ', 'edd-wordpress-plugins' ); ?></span>
-					<span class="edd-detail-info"><?php echo $data['downloaded']; ?></span>
+					<span class="edd-wordpress-downloads-detail-name" <?php echo $name_styles; ?>><?php _e( 'Downloaded: ', 'edd-wordpress-downloads' ); ?></span>
+					<span class="edd-wordpress-downloasd-detail-info" <?php echo $info_styles; ?>><?php echo $data['downloaded'] . __( ' times', 'edd-wordpress-downloads' ); ?></span>
 				</li>
 
 			<?php endif; ?>
 
-			<?php if ( $rating ): ?>
+			<?php if ( $rating && isset( $data['rating'] ) ): ?>
+
+				<?php $ratings_txt = sprintf(
+					__( '%s from %d ratings', 'edd-wordpress-downloads' ),
+					$data['rating'],
+					$data['num_ratings']
+				); ?>
 
 				<li>
-					<span class="edd-detail-name"><?php _e( 'Rated: ', 'edd-wordpress-plugins' ); ?></span>
-					<span class="edd-detail-info"><?php echo $data['rating']; ?></span>
+					<span class="edd-wordpress-downloads-detail-name" <?php echo $name_styles; ?>><?php _e( 'Rated: ', 'edd-wordpress-downloads' ); ?></span>
+					<span class="edd-wordpress-downloasd-detail-info" <?php echo $info_styles; ?>><?php echo $ratings_txt; ?></span>
 				</li>
 
 			<?php endif; ?>
 
-			<?php if ( $version ): ?>
+			<?php if ( $version && isset( $data['version'] ) ): ?>
 
 				<li>
-					<span class="edd-detail-name"><?php _e( 'Version: ', 'edd-wordpress-plugins' ); ?></span>
-					<span class="edd-detail-info"><?php echo $data['version']; ?></span>
+					<span class="edd-wordpress-downloads-detail-name" <?php echo $name_styles; ?>><?php _e( 'Version: ', 'edd-wordpress-downloads' ); ?></span>
+					<span class="edd-wordpress-downloasd-detail-info" <?php echo $info_styles; ?>><?php echo $data['version']; ?></span>
 				</li>
 
 			<?php endif; ?>
@@ -134,32 +157,38 @@ class EDD_WordPress_Plugins_Widget extends WP_Widget {
 		$downloaded   	= isset( $instance['downloaded'] )   ? (bool) $instance['downloaded']   : true;
 		$version    	= isset( $instance['version'] )    ? (bool) $instance['version']    : true;
 		$rating 		= isset( $instance['rating'] ) ? (bool) $instance['rating'] : true;
+		$output_css 	= isset( $instance['output_css'] ) ? (bool) $instance['output_css'] : true;
 
 		?>
 
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e( 'Title:', 'edd-wordpress-plugins' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e( 'Title:', 'edd-wordpress-downloads' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
 		</p>
 
 		<p>
 			<input <?php checked( $added ); ?> id="<?php echo esc_attr( $this->get_field_id( 'added' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'added' ) ); ?>" type="checkbox" />
-			<label for="<?php echo esc_attr( $this->get_field_id( 'added' ) ); ?>"><?php _e( 'Show Date Added', 'edd-wordpress-plugins' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'added' ) ); ?>"><?php _e( 'Show Date Added', 'edd-wordpress-downloads' ); ?></label>
 		</p>
 
 		<p>
 			<input <?php checked( $updated ); ?> id="<?php echo esc_attr( $this->get_field_id( 'updated' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'updated' ) ); ?>" type="checkbox" />
-			<label for="<?php echo esc_attr( $this->get_field_id( 'updated' ) ); ?>"><?php _e( 'Show Date Updated', 'edd-wordpress-plugins' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'updated' ) ); ?>"><?php _e( 'Show Date Updated', 'edd-wordpress-downloads' ); ?></label>
 		</p>
 
 		<p>
 			<input <?php checked( $version ); ?> id="<?php echo esc_attr( $this->get_field_id( 'version' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'version' ) ); ?>" type="checkbox" />
-			<label for="<?php echo esc_attr( $this->get_field_id( 'version' ) ); ?>"><?php _e( 'Show Version Number', 'edd-wordpress-plugins' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'version' ) ); ?>"><?php _e( 'Show Version Number', 'edd-wordpress-downloads' ); ?></label>
 		</p>
 
 		<p>
 			<input <?php checked( $rating ); ?> id="<?php echo esc_attr( $this->get_field_id( 'rating' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'rating' ) ); ?>" type="checkbox" />
-			<label for="<?php echo esc_attr( $this->get_field_id( 'rating' ) ); ?>"><?php _e( 'Show Rating', 'edd-wordpress-plugins' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'rating' ) ); ?>"><?php _e( 'Show Rating', 'edd-wordpress-downloads' ); ?></label>
+		</p>
+
+		<p>
+			<input <?php checked( $output_css ); ?> id="<?php echo esc_attr( $this->get_field_id( 'output_css' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'output_css' ) ); ?>" type="checkbox" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'output_css' ) ); ?>"><?php _e( 'Output CSS', 'edd-wordpress-downloads' ); ?></label>
 		</p>
 
 		<?php
@@ -174,10 +203,11 @@ class EDD_WordPress_Plugins_Widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance               	= $old_instance;
 		$instance['title']      	= ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['added']  		= ! empty( $new_instance['added'] ) 	? 1 : 0;
-		$instance['updated'] 		= ! empty( $new_instance['updated'] ) 	? 1 : 0;
-		$instance['rating']       	= ! empty( $new_instance['rating'] ) 	? 1 : 0;
-		$instance['version']  		= ! empty( $new_instance['version'] )  	? 1 : 0;
+		$instance['added']  		= ! empty( $new_instance['added'] ) 		? 1 : 0;
+		$instance['updated'] 		= ! empty( $new_instance['updated'] ) 		? 1 : 0;
+		$instance['rating']       	= ! empty( $new_instance['rating'] ) 		? 1 : 0;
+		$instance['version']  		= ! empty( $new_instance['version'] )  		? 1 : 0;
+		$instance['output_css']		= ! empty( $new_instance['output_css'] )	? 1 :0;
 		return $instance;
 	}
 
@@ -186,10 +216,10 @@ class EDD_WordPress_Plugins_Widget extends WP_Widget {
 /**
  * Register the widgets
  *
- * @package     EDD\EDD_WordPress_Plugins\Functions
+ * @package     EDD\EDD_WordPress_Downloads\Functions
  * @since       1.0.0
  */
-function edd_wordpress_plugins_register_widgets() {
-	register_widget( 'edd_wordpress_plugins_widget' );
+function edd_wordpress_downloads_register_widgets() {
+	register_widget( 'edd_wordpress_downloads_widget' );
 }
-add_action( 'widgets_init', 'edd_wordpress_plugins_register_widgets' );
+add_action( 'widgets_init', 'edd_wordpress_downloads_register_widgets' );
