@@ -2,7 +2,7 @@
 /**
  * Helper Functions
  *
- * @package     EDD\EDD_WordPress_Downloads\Functions
+ * @package     EDD\EDD_WP_Downloads\Functions
  * @since       1.0.0
  */
 
@@ -15,8 +15,8 @@ if( !defined( 'ABSPATH' ) ) exit;
  *
  * @since 1.0.0
  */
-function edd_wordpress_downloads_text_args( $args ) {
-	$free_download_text = apply_filters( 'edd_wordpress_downloads_button_text', __( 'Free Download', 'edd-wordpress-downloads' ) );
+function edd_wp_downloads_text_args( $args ) {
+	$free_download_text = apply_filters( 'edd_wp_downloads_button_text', __( 'Free Download', 'edd-wp-downloads' ) );
 	$variable_pricing 	= edd_has_variable_prices( $args['download_id'] );
 
 	if ( $args['price'] && $args['price'] !== 'no' && ! $variable_pricing ) {
@@ -27,7 +27,7 @@ function edd_wordpress_downloads_text_args( $args ) {
 	}
 	return $args;
 }
-add_filter( 'edd_purchase_link_args', 'edd_wordpress_downloads_text_args' );
+add_filter( 'edd_purchase_link_args', 'edd_wp_downloads_text_args' );
 
 /**
  * WordPress Plugin URL Field
@@ -37,19 +37,19 @@ add_filter( 'edd_purchase_link_args', 'edd_wordpress_downloads_text_args' );
  * @since 1.0.0
  * @param integer $post_id Download (Post) ID
  */
-function edd_wordpress_downloads_meta_field( $post_id ) {
-	$edd_wordpress_downloads_url = get_post_meta( $post_id, '_edd_wordpress_downloads_url', true );
+function edd_wp_downloads_meta_field( $post_id ) {
+	$edd_wp_downloads_url = get_post_meta( $post_id, '_edd_wp_downloads_url', true );
 	?>
 
-		<p><strong><?php _e( 'WordPress.org URL:', 'edd-wordpress-downloads' ); ?></strong></p>
-		<label for="edd-wordpress-downloads-url">
-			<input type="text" name="_edd_wordpress_downloads_url" id="edd-wordpress-downloads-url" value="<?php echo esc_attr( $edd_wordpress_downloads_url ); ?>" size="80" placeholder="https://wordpress.org/plugins/your-plugin-slug/" />
-			<br/><?php _e( 'The URL to use if this is a free plugin or theme on the WordPress.org repository. Leave blank for standard products.', 'edd-wordpress-downloads' ); ?>
+		<p><strong><?php _e( 'WordPress.org URL:', 'edd-wp-downloads' ); ?></strong></p>
+		<label for="edd-wp-downloads-url">
+			<input type="text" name="_edd_wp_downloads_url" id="edd-wp-downloads-url" value="<?php echo esc_attr( $edd_wp_downloads_url ); ?>" size="80" placeholder="https://wordpress.org/plugins/your-plugin-slug/" />
+			<br/><?php _e( 'The URL to use if this is a free plugin or theme on the WordPress.org repository. Leave blank for standard products.', 'edd-wp-downloads' ); ?>
 		</label>
 
 	<?php
 }
-add_action( 'edd_meta_box_fields', 'edd_wordpress_downloads_meta_field' );
+add_action( 'edd_meta_box_fields', 'edd_wp_downloads_meta_field' );
 
 /**
  * Add the _edd_wordpress_plugin_url field to the list of saved product fields
@@ -59,15 +59,15 @@ add_action( 'edd_meta_box_fields', 'edd_wordpress_downloads_meta_field' );
  * @param  array $fields The default product fields list
  * @return array         The updated product fields list
  */
-function edd_wordpress_downloads_save( $fields ) {
+function edd_wp_downloads_save( $fields ) {
 
 	// Add our field
-	$fields[] = '_edd_wordpress_downloads_url';
+	$fields[] = '_edd_wp_downloads_url';
 
 	// Return the fields array
 	return $fields;
 }
-add_filter( 'edd_metabox_fields_save', 'edd_wordpress_downloads_save' );
+add_filter( 'edd_metabox_fields_save', 'edd_wp_downloads_save' );
 
 
 /**
@@ -75,33 +75,33 @@ add_filter( 'edd_metabox_fields_save', 'edd_wordpress_downloads_save' );
  *
  * @since 1.0.0
 */
-function edd_wordpress_downloads_metabox_save( $new ) {
+function edd_wp_downloads_metabox_save( $new ) {
 
 	// Convert to raw URL to save into wp_postmeta table
-	$new = esc_url_raw( $_POST[ '_edd_wordpress_downloads_url' ] );
+	$new = esc_url_raw( $_POST[ '_edd_wp_downloads_url' ] );
 
 	// Return URL
 	return $new;
 
 }
-add_filter( 'edd_metabox_save__edd_external_url', 'edd_wordpress_downloads_metabox_save' );
+add_filter( 'edd_metabox_save__edd_external_url', 'edd_wp_downloads_metabox_save' );
 
 /**
  * Prevent a download linked to an external URL from being purchased with ?edd_action=add_to_cart&download_id=XXX
  *
  * @since 1.0.0
 */
-function edd_wordpress_downloads_pre_add_to_cart( $download_id ) {
+function edd_wp_downloads_pre_add_to_cart( $download_id ) {
 
-	$edd_plugin_url = get_post_meta( $download_id, '_edd_wordpress_plugin_url', true ) ? get_post_meta( $download_id, '_edd_wordpress_plugin_url', true ) : '';
+	$edd_plugin_url = get_post_meta( $download_id, '_edd_wp_downloads_url', true ) ? get_post_meta( $download_id, '_edd_wp_downloads_url', true ) : '';
 
 	// Prevent user trying to purchase download using EDD purchase query string
 	if ( $edd_plugin_url ) {
-		wp_die( sprintf( __( 'This download can only be purchased from %s', 'edd-external-product' ), esc_url( $edd_plugin_url ) ), '', array( 'back_link' => true ) );
+		wp_die( __( 'This item can only be downloaded from WordPress.org.', 'edd-wp-downloads' ), '', array( 'back_link' => true ) );
 	}
 
 }
-add_action( 'edd_pre_add_to_cart', 'edd_wordpress_downloads_pre_add_to_cart' );
+add_action( 'edd_pre_add_to_cart', 'edd_wp_downloads_pre_add_to_cart' );
 
 /**
  * Override the default product purchase button with an external anchor
@@ -114,10 +114,10 @@ add_action( 'edd_pre_add_to_cart', 'edd_wordpress_downloads_pre_add_to_cart' );
  * @param  array    $args           Args passed from {@see edd_get_purchase_link()}
  * @return string                   The potentially modified purchase area markup
  */
-function edd_wordpress_downloads_link( $purchase_form, $args ) {
+function edd_wp_downloads_link( $purchase_form, $args ) {
 
 	// If the product has an external URL set
-	if ( $edd_wordpress_downloads_url = get_post_meta( $args['download_id'], '_edd_wordpress_downloads_url', true ) ) {
+	if ( $edd_wp_downloads_url = get_post_meta( $args['download_id'], '_edd_wp_downloads_url', true ) ) {
 
 		// Open up the standard containers
 		$output = '<div class="edd_download_purchase_form">';
@@ -127,8 +127,8 @@ function edd_wordpress_downloads_link( $purchase_form, $args ) {
 		$output .= sprintf(
 			'<a class="%1$s" href="%2$s" %3$s>%4$s</a>',
 			implode( ' ', array( $args['style'], $args['color'], trim( $args['class'] ) ) ),
-			esc_attr( $edd_wordpress_downloads_url ),
-			apply_filters( 'edd_wordpress_downloads_link_attrs', '', $args ),
+			esc_attr( $edd_wp_downloads_url ),
+			apply_filters( 'edd_wp_downloads_link_attrs', '', $args ),
 			esc_attr( $args['text'] )
 		);
 
@@ -144,7 +144,7 @@ function edd_wordpress_downloads_link( $purchase_form, $args ) {
 	// Return the possibly modified purchase form
 	return $purchase_form;
 }
-add_filter( 'edd_purchase_download_form', 'edd_wordpress_downloads_link', 10, 2 );
+add_filter( 'edd_purchase_download_form', 'edd_wp_downloads_link', 10, 2 );
 
 /**
  * Determines if the provided URL is a WordPress.org plugin or theme and returns the slug.
@@ -154,7 +154,7 @@ add_filter( 'edd_purchase_download_form', 'edd_wordpress_downloads_link', 10, 2 
  * @param 	string $url The URL of the WordPress.org plugin or theme.
  * @return 	array
  */
-function edd_wordpress_downloads_parse_url( $url ) {
+function edd_wp_downloads_parse_url( $url ) {
 	if ( strpos( $url, 'wordpress.org/plugins' ) !== false ) {
 		$type = 'plugin';
 		$slug = explode( 'plugins/', $url );
@@ -179,10 +179,10 @@ function edd_wordpress_downloads_parse_url( $url ) {
  * @param 	string $url The URL of the WordPress plugin to get data for.
  * @return 	array|boolean
  */
-function edd_wordpress_downloads_get_data( $url ) {
+function edd_wp_downloads_get_data( $url ) {
 	$url 		= esc_url_raw( $url );
-	$download 	= edd_wordpress_downloads_parse_url( $url );
-	$cached 	= get_transient( $download['slug'] . '_edd_wordpress_downloads_data' .time() );
+	$download 	= edd_wp_downloads_parse_url( $url );
+	$cached 	= get_transient( $download['slug'] . '_edd_wp_downloads_data' );
 
 	$result = array(
 		'added' 		=> '',
@@ -258,10 +258,10 @@ function edd_wordpress_downloads_get_data( $url ) {
 		$result['name'] = $info->name;
 	}
 
-	$result = apply_filters( 'edd_wordpress_downloads_data', array_filter( $result ) );
-	$length = apply_filters( 'edd_wordpress_downloads_transient_length', HOUR_IN_SECONDS );
+	$result = apply_filters( 'edd_wp_downloads_data', array_filter( $result ) );
+	$length = apply_filters( 'edd_wp_downloads_transient_length', HOUR_IN_SECONDS );
 
-	set_transient( $download['slug'] . '_edd_wordpress_downloads_data', $result, $length );
+	set_transient( $download['slug'] . '_edd_wp_downloads_data', $result, $length );
 
 	return $result;
 }

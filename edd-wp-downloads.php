@@ -6,9 +6,9 @@
  * Version:         1.0.0
  * Author:          Expanded Fronts, LLC
  * Author URI:      https://expandedfronts.com
- * Text Domain:     edd-wordpress-downloads
+ * Text Domain:     edd-wp-downloads
  *
- * @package         EDD\EDD_WordPress_Downloads
+ * @package         EDD\EDD_WP_Downloads
  * @author          Expanded Fronts, LLC
  * @copyright       Copyright (c) Expanded Fronts, LLC
  */
@@ -16,17 +16,17 @@
 // Exit if accessed directly
 if( !defined( 'ABSPATH' ) ) exit;
 
-if( !class_exists( 'EDD_WordPress_Downloads' ) ) {
+if( !class_exists( 'EDD_WP_Downloads' ) ) {
 
     /**
-     * Main EDD_WordPress_Downloads class
+     * Main EDD_WP_Downloads class
      *
      * @since       1.0.0
      */
-    class EDD_WordPress_Downloads {
+    class EDD_WP_Downloads {
 
         /**
-         * @var         EDD_WordPress_Downloads $instance The one true EDD_WordPress_Downloads
+         * @var         EDD_WP_Downloads $instance The one true EDD_WP_Downloads
          * @since       1.0.0
          */
         private static $instance;
@@ -37,11 +37,11 @@ if( !class_exists( 'EDD_WordPress_Downloads' ) ) {
          *
          * @access      public
          * @since       1.0.0
-         * @return      object self::$instance The one true EDD_WordPress_Downloads
+         * @return      object self::$instance The one true EDD_WP_Downloads
          */
         public static function instance() {
             if( ! self::$instance ) {
-                self::$instance = new EDD_WordPress_Downloads();
+                self::$instance = new EDD_WP_Downloads();
                 self::$instance->setup_constants();
                 self::$instance->includes();
                 self::$instance->load_textdomain();
@@ -60,13 +60,13 @@ if( !class_exists( 'EDD_WordPress_Downloads' ) ) {
          */
         private function setup_constants() {
             // Plugin version
-            define( 'EDD_WORDPRESS_DOWNLOADS_VER', '1.0.0' );
+            define( 'EDD_WP_DOWNLOADS_VER', '1.0.0' );
 
             // Plugin path
-            define( 'EDD_WORDPRESS_DOWNLOADS_DIR', plugin_dir_path( __FILE__ ) );
+            define( 'EDD_WP_DOWNLOADS_DIR', plugin_dir_path( __FILE__ ) );
 
             // Plugin URL
-            define( 'EDD_WORDPRESS_DOWNLOADS_URL', plugin_dir_url( __FILE__ ) );
+            define( 'EDD_WP_DOWNLOADS_URL', plugin_dir_url( __FILE__ ) );
         }
 
 
@@ -79,8 +79,8 @@ if( !class_exists( 'EDD_WordPress_Downloads' ) ) {
          */
         private function includes() {
             // Include scripts
-            require_once EDD_WORDPRESS_DOWNLOADS_DIR . 'includes/functions.php';
-            require_once EDD_WORDPRESS_DOWNLOADS_DIR . 'includes/widgets.php';
+            require_once EDD_WP_DOWNLOADS_DIR . 'includes/functions.php';
+            require_once EDD_WP_DOWNLOADS_DIR . 'includes/widgets.php';
         }
 
 
@@ -93,26 +93,26 @@ if( !class_exists( 'EDD_WordPress_Downloads' ) ) {
          */
         public function load_textdomain() {
             // Set filter for language directory
-            $lang_dir = EDD_WORDPRESS_DOWNLOADS_DIR . '/languages/';
-            $lang_dir = apply_filters( 'edd_wordpress_plugins_languages_directory', $lang_dir );
+            $lang_dir = EDD_WP_DOWNLOADS_DIR . '/languages/';
+            $lang_dir = apply_filters( 'edd_wp_downloads_languages_directory', $lang_dir );
 
             // Traditional WordPress plugin locale filter
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'edd-wordpress-downloads' );
-            $mofile = sprintf( '%1$s-%2$s.mo', 'edd-wordpress-downloads', $locale );
+            $locale = apply_filters( 'plugin_locale', get_locale(), 'edd-wp-downloads' );
+            $mofile = sprintf( '%1$s-%2$s.mo', 'edd-wp-downloads', $locale );
 
             // Setup paths to current locale file
             $mofile_local   = $lang_dir . $mofile;
-            $mofile_global  = WP_LANG_DIR . '/edd-wordpress-downloads/' . $mofile;
+            $mofile_global  = WP_LANG_DIR . '/edd-wp-downloads/' . $mofile;
 
             if( file_exists( $mofile_global ) ) {
                 // Look in global /wp-content/languages/edd-wordpress-downloads/ folder
-                load_textdomain( 'edd-wordpress-downloads', $mofile_global );
+                load_textdomain( 'edd-wp-downloads', $mofile_global );
             } elseif( file_exists( $mofile_local ) ) {
                 // Look in local /wp-content/plugins/edd-wordpress-downloads/languages/ folder
-                load_textdomain( 'edd-wordpress-downloads', $mofile_local );
+                load_textdomain( 'edd-wp-downloads', $mofile_local );
             } else {
                 // Load the default language files
-                load_plugin_textdomain( 'edd-wordpress-downloads', false, $lang_dir );
+                load_plugin_textdomain( 'edd-wp-downloads', false, $lang_dir );
             }
         }
 
@@ -122,13 +122,13 @@ if( !class_exists( 'EDD_WordPress_Downloads' ) ) {
 
 
 /**
- * The main function responsible for returning the one true EDD_WordPress_Downloads
+ * The main function responsible for returning the one true EDD_WP_Downloads
  * instance to functions everywhere
  *
  * @since       1.0.0
- * @return      \EDD_WordPress_Downloads The one true EDD_WordPress_Downloads
+ * @return      \EDD_WP_Downloads The one true EDD_WP_Downloads
  */
-function EDD_WordPress_Downloads_load() {
+function EDD_WP_Downloads_load() {
     if( ! class_exists( 'Easy_Digital_Downloads' ) ) {
         if( ! class_exists( 'EDD_Extension_Activation' ) ) {
             require_once 'includes/class.extension-activation.php';
@@ -137,7 +137,7 @@ function EDD_WordPress_Downloads_load() {
         $activation = new EDD_Extension_Activation( plugin_dir_path( __FILE__ ), basename( __FILE__ ) );
         $activation = $activation->run();
     } else {
-        return EDD_WordPress_Downloads::instance();
+        return EDD_WP_Downloads::instance();
     }
 }
-add_action( 'plugins_loaded', 'EDD_WordPress_Downloads_load' );
+add_action( 'plugins_loaded', 'EDD_WP_Downloads_load' );
