@@ -35,6 +35,10 @@ class EDD_WP_Downloads_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		global $post;
 
+		if ( ! $post || ! isset( $post->ID ) ) {
+			return;
+		}
+
 		$wp_downloads_url = get_post_meta( $post->ID, '_edd_wp_downloads_url', true );
 
 		// Bail!

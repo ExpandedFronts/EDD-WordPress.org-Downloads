@@ -3,7 +3,7 @@
  * Plugin Name:     EDD WordPress.org Downloads
  * Plugin URI:      https://expandedfronts.com
  * Description:     Allows you to add plugins and themes from WordPress.org to Easy Digital Downloads.
- * Version:         1.0.0
+ * Version:         1.0.2
  * Author:          Expanded Fronts, LLC
  * Author URI:      https://expandedfronts.com
  * Text Domain:     edd-wp-downloads
@@ -60,7 +60,7 @@ if( !class_exists( 'EDD_WP_Downloads' ) ) {
          */
         private function setup_constants() {
             // Plugin version
-            define( 'EDD_WP_DOWNLOADS_VER', '1.0.0' );
+            define( 'EDD_WP_DOWNLOADS_VER', '1.0.2' );
 
             // Plugin path
             define( 'EDD_WP_DOWNLOADS_DIR', plugin_dir_path( __FILE__ ) );

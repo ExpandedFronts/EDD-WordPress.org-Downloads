@@ -11,18 +11,40 @@
 if( !defined( 'ABSPATH' ) ) exit;
 
 /**
+ * Add the "WordPress.org Button Text" field.
+ *
+ * @since 1.0.1
+ */
+function edd_wp_downloads_settings( $settings ) {
+	$new_settings = array(
+		array(
+			'id' 	=> 'edd_wp_downloads_button_text',
+			'name' 	=> __( 'WordPress.org Download Button Text', 'edd-wp-downloads' ),
+			'desc' 	=> __( 'Text shown for free plugin/theme downloads on WordPress.org.', 'edd-wp-downloads' ),
+			'type' 	=> 'text',
+			'std' 	=> __( 'Free Download', 'edd-wp-downloads' )
+		)
+	);
+	return array_merge( $settings, $new_settings );
+}
+add_action( 'edd_settings_misc', 'edd_wp_downloads_settings' );
+
+/**
  * Change the button text of a free download. Default is "Free - Add to Cart"
  *
  * @since 1.0.0
  */
 function edd_wp_downloads_text_args( $args ) {
-	$free_download_text = apply_filters( 'edd_wp_downloads_button_text', __( 'Free Download', 'edd-wp-downloads' ) );
+	$free_download_text = edd_get_option( 'edd_wp_downloads_button_text', __( 'Free Download', 'edd-wp-downloads' ) );
 	$variable_pricing 	= edd_has_variable_prices( $args['download_id'] );
 
 	if ( $args['price'] && $args['price'] !== 'no' && ! $variable_pricing ) {
 		$price = edd_get_download_price( $args['download_id'] );
 		if ( 0 == $price ) {
-			$args['text'] = $free_download_text;
+			$wp_downloads_url = get_post_meta( $args['download_id'], '_edd_wp_downloads_url', true );
+			if ( $wp_downloads_url ) {
+				$args['text'] = $free_download_text;
+			}
 		}
 	}
 	return $args;
